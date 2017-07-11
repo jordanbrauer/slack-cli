@@ -29,23 +29,6 @@ class ApiClientSpec extends TestCase
     $this->assertTrue(mb_substr($this->client->getBaseUrl(), -1) != "/");
   }
 
-  public function test_adding_options_to_query_string_parameters ()
-  {
-    $this->client->addOption("pretty", 1);
-    $this->client->addOption("ugly", 0);
-    $this->client->addOption("foo", "bar");
-
-    $this->assertInternalType('array', $this->client->getOptions());
-  }
-
-  public function test_option_exists_check_validates_correctly ()
-  {
-    $this->client->addOption("foo", "bar");
-
-    $this->assertTrue($this->client->optionExists("foo"));
-    $this->assertFalse($this->client->optionExists("bar"));
-  }
-
   public function test_query_string_parameters_are_valid ()
   {
     $this->client->addOption("pretty", 1);
