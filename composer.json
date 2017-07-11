@@ -13,6 +13,7 @@
       "test": "phpunit --configuration='./phpunit.xml' --test-suffix='.spec.php' --color=always ./dev/tests/"
     },
     "require": {
+        "php": ">=7.0",
         "monolog/monolog": "^1.23",
         "symfony/console": "^3.3",
         "vlucas/phpdotenv": "^2.4",
