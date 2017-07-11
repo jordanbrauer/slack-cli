@@ -37,4 +37,15 @@ class ApiClientOptionsSpec extends TestCase
     $this->assertTrue($this->client->optionExists("foo"));
     $this->assertFalse($this->client->optionExists("bar"));
   }
+  
+  public function test_query_string_parameters_are_valid ()
+  {
+    $this->client->addOption("pretty", 1);
+    $this->client->addOption("ugly", 0);
+    $this->client->addOption("foo", "bar");
+
+    $this->assertInternalType('string', $this->client->getOptions("string"));
+    $this->assertGreaterThan(0, strlen($this->client->getOptions("string")));
+    $this->assertEquals(preg_match("/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$/", $this->client->getOptions("string")), 1);
+  }
 }
