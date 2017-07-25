@@ -3,7 +3,7 @@
 namespace Slack\Api;
 
 use \GuzzleHttp\Client as Guzzle;
-// use \GuzzleHttp\Exception\ClientException as ClientException; // Slack\Api\Exception
+// use \GuzzleHttp\Exception\ClientException as GuzzleException; // TODO: #29
 
 class Client extends Guzzle
 {
@@ -16,18 +16,53 @@ class Client extends Guzzle
   public function __construct (array $options = null)
   {
     parent::__construct();
-    $this->setBaseUrl($options['base_url'] ?? "https://slack.com/api");
-    $this->setMethod($options['method'] ?? "auth.test");
     $this->options = array();
-    $this->setToken($options['token']);
+    $this->setBaseUrl($options["base_url"] ?? "https://slack.com/api");
+    $this->setMethod($options["method"] ?? "auth.test");
+    $this->setToken($options["token"]);
   }
 
-  public function setBaseUrl (string $url)
+  public function save ()
   {
-    $this->base_url = mb_substr($url, -1) == "/" ?
-      rtrim($url, '/') : $url;
+    $this->url = "{$this->getBaseUrl()}/{$this->getMethod()}{$this->getQueryStrParams()}";
+    return true;
+  }
 
-    return $this;
+  public function load ()
+  {
+    return $this->url;
+  }
+
+  public function ping (string $method, array $options = null)
+  {
+    $this->setMethod($method);
+
+    foreach ($options as $key => $value):
+      $this->addOption($key, $value);
+    endforeach;
+
+    $this->save();
+
+    return $this->post($this->load());
+  }
+
+  public function setBaseUrl (string $url, bool $ssl = true)
+  {
+    if (!filter_var($url, FILTER_VALIDATE_URL)):
+      throw new \Exception("Error processing URL parameter for ".__FUNCTION__.", {$url}", 1);
+    else:
+      if (!array_key_exists("scheme", parse_url($url))):
+        if ($ssl):
+          $url = "https://{$url}";
+        else:
+          $url = "http://{$url}";
+        endif;
+      endif;
+
+      $this->base_url = rtrim($url, "/");
+
+      return $this;
+    endif;
   }
 
   public function getBaseUrl ()
@@ -54,6 +89,14 @@ class Client extends Guzzle
     return $this;
   }
 
+  public function optionExists (string $key)
+  {
+    if (array_key_exists($key, $this->getOptions()))
+      return true;
+
+    return false;
+  }
+
   public function getOption (string $key)
   {
     return $this->options[$key];
@@ -66,14 +109,6 @@ class Client extends Guzzle
 
     if ($format == "string")
       return "?".http_build_query($this->options);
-  }
-
-  public function optionExists (string $key)
-  {
-    if (array_key_exists($key, $this->getOptions()))
-      return true;
-
-    return false;
   }
 
   public function setToken (string $token)
@@ -92,28 +127,5 @@ class Client extends Guzzle
   public function getQueryStrParams ()
   {
     return $this->getOptions("string");
-  }
-
-  public function save (bool $save)
-  {
-    $this->url = "{$this->getBaseUrl()}/{$this->getMethod()}{$this->getQueryStrParams()}";
-  }
-
-  public function load ()
-  {
-    return $this->url;
-  }
-
-  public function ping (string $method, array $options = null)
-  {
-    $this->setMethod($method);
-
-    foreach ($options as $key => $value):
-      $this->addOption($key, $value);
-    endforeach;
-
-    $this->save(true);
-
-    return $this->post($this->load());
   }
 }
