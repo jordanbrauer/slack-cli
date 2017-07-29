@@ -1,34 +1,39 @@
 <?php
 
+
 namespace Slack\Api;
 
 use \GuzzleHttp\Client as Guzzle;
 // use \GuzzleHttp\Exception\ClientException as GuzzleException; // TODO: #29
 
+/**
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 1.0.0
+ */
 class Client extends Guzzle
 {
   /**
-   * @param string $base_url The base URL of the Slack API.
+   * @var string $base_url The base URL of the Slack API.
    */
   private $base_url;
 
   /**
-   * @param string $token Your Slack teams API token.
+   * @var string $token Your Slack teams API token.
    */
   private $token;
 
   /**
-   * @param string $method The Slack API method that is being executed.
+   * @var string $method The Slack API method that is being executed.
    */
   private $method;
 
   /**
-   * @param array $params An array of URL paramters being passed to the current method.
+   * @var array $params An array of URL paramters being passed to the current method.
    */
   private $params;
 
   /**
-   * @param string $url The complete URL to be pinged with a POST request.
+   * @var string $url The complete URL to be pinged with a POST request.
    */
   private $url;
 
@@ -113,6 +118,8 @@ class Client extends Guzzle
 
     $this->base_url = rtrim($url, "/");
 
+    $this->save();
+
     return $this;
   }
 
@@ -134,6 +141,7 @@ class Client extends Guzzle
   public function setMethod (string $method)
   {
     $this->method = $method;
+    $this->save();
     return $this;
   }
 
@@ -179,6 +187,8 @@ class Client extends Guzzle
   {
     if (!$this->paramExists($key))
       $this->params[$key] = $value;
+
+    $this->save();
 
     return $this;
   }
