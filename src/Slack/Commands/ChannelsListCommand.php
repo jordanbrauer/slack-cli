@@ -118,7 +118,7 @@ class ChannelsListCommand extends Command
             break;
           case "table":
             $table = new Table($output);
-            $headers = Channel::getTableHeaders($channels[0]);
+            $headers = Channel::getTableHeaders();
             $rows = array();
 
             # Insert the values of each channels attributes as row data

@@ -122,7 +122,7 @@ class ChannelsHistoryCommand extends Command
             break;
           case "table":
             $table = new Table($output);
-            $headers = Message::getTableHeaders($messages[0]);
+            $headers = Message::getTableHeaders();
             $rows = array();
 
             # Insert the values of each messages attributes as row data
