@@ -4,6 +4,7 @@ namespace Slack\Commands;
 
 use Dotenv\Dotenv;
 use Slack\Api\Client;
+use Slack\Entities\Message;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,6 +12,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ChannelHistoryCommand extends Command
 {
@@ -31,44 +36,135 @@ class ChannelHistoryCommand extends Command
 
       ->addOption("count", null, InputOption::VALUE_REQUIRED, "Amount of messages to fetch from the specified channel", 100)
 
+      ->addOption("output", "o", InputOption::VALUE_REQUIRED, "Output type for this command. Possible values include: table, json, timestamps", "table")
+
       ->addOption("pretty", null, InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0)
       ;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    # Styled IO
     $io = new SymfonyStyle($input, $output);
 
+    # JSON Serializer and object normalizer (see Symfony serializer component)
+    $serializer = new Serializer(
+      array(new ObjectNormalizer),
+      array(new JsonEncoder)
+    );
+
+    # Load environment
     $env = new Dotenv(__DIR__."/../../../");
     $env->load();
 
+    # Create client
     $client = new Client([
       "base_url" => "https://slack.com/api",
       "token" => getenv("SLACK_API_TOKEN")
     ]);
 
+    # Request method
     $request = $client->ping("channels.history", [
       "channel" => $input->getArgument("channel"),
       "count" => $input->getOption("count"),
       "pretty" => $input->getOption("pretty"),
     ]);
 
+    # Response object (mostly syntactical sugar)
     $response = (object) [
       "code" => $request->getStatusCode(),
       "body" => $request->getBody(),
+      "ok" => json_decode($request->getBody())->ok,
     ];
 
-    $responseBodyDecoded = json_decode($response->body);
+    # Debug information
+    if ($io->isVerbose()):
+      $io->text("<options=bold,underscore>Debug:</>");
 
-    $messageTimestamps = array();
-    foreach ($responseBodyDecoded->messages as $message):
-      array_push($messageTimestamps, $message->ts);
-    endforeach;
+      $io->text("URL Method: <comment>{$client->getMethod()}</comment>");
+      $io->text("Channel: <comment>{$input->getArgument('channel')}</comment>");
 
-    if ($response->code == 200):
-      return $io->text(json_encode($messageTimestamps));
-    else:
-      $io->error([$response->code, $response->body]);
+      if ($io->isVeryVerbose()):
+        $io->text("Count: <comment>{$input->getOption('count')}</comment>");
+        $io->text("Pretty JSON: <comment>{$input->getOption('pretty')}</comment>");
+        $io->text("Output Style: <comment>{$input->getOption('output')}</comment>");
+      endif;
+
+      if ($io->isDebug()):
+        $io->text("Response Code: <fg=cyan>{$response->code}</>");
+      endif;
+
+      $io->newLine();
+    endif;
+
+    # Output based on response code and ok status
+    if ($response->code != 200):
+      return $io->error([$response->code, $response->body]);
+    elseif ($response->code == 200):
+      if (!$response->ok):
+        return $io->error([$response->code, $response->body]);
+      else:
+        $messageData = json_decode($response->body)->messages;
+
+        # Deserialize each channel object and push them into an array
+        $messages = array();
+        foreach ($messageData as $messageaSet):
+          $message = $serializer->deserialize(json_encode($messageaSet), Message::class, "json");
+
+          array_push($messages, $message);
+        endforeach;
+
+        switch ($input->getOption("output")):
+          case "json":
+            return $io->text($response->body);
+            break;
+          case "table":
+            $table = new Table($output);
+            $headers = Message::getTableHeaders($messages[0]);
+            $rows = array();
+
+            # Insert the values of each messages attributes as row data
+            # NOTE: order is important for the data to show up in the correct columns
+            foreach ($messages as $message):
+              $values = array(
+                $message->getType(),
+                $message->getSubtype(),
+                $message->getChannel(),
+                $message->getUser(),
+                $message->getText(),
+                $message->getTs(),
+                $message->getIsStarred(),
+                $message->getPinnedTo(),
+                $message->getReactions(),
+              );
+
+              array_push($rows, $values);
+            endforeach;
+
+            # Render the table output
+            return $table
+              ->setHeaders($headers)
+              ->setRows($rows)
+              ->render()
+              ;
+            break;
+          case "timestamps":
+            $messages = json_decode($response->body)->messages;
+
+            $messageTimestamps = array();
+            foreach ($messages as $message):
+              array_push($messageTimestamps, $message->ts);
+            endforeach;
+
+            $jsonTimestamps = $input->getOption("pretty") ?
+              json_encode($messageTimestamps, JSON_PRETTY_PRINT) : json_encode($messageTimestamps);
+              
+            return $io->text($jsonTimestamps);
+            break;
+          default:
+            return $io->text($response->body);
+        endswitch;
+      endif;
     endif;
   }
 }
