@@ -41,21 +41,51 @@ class ChannelsListCommandSpec extends TestCase
     $this->assertInternalType("object", $decodedJson->channels[0]);
   }
 
-  public function test_ugly_json_output ()
+  public function test_json_output ()
   {
-    $uglyJsonString = trim($this->command->execute(["--output" => "json", "--pretty" => 0]), "\n ");
+    # NOTE: trim surrounding newline characters ('\n') for string assertions
+    $jsonOutput = trim($this->command->execute(["--output" => "json", "--pretty" => 0]), "\n ");
 
-    $this->assertInternalType("string", $uglyJsonString);
-    $this->assertStringStartsWith("{", $uglyJsonString);
-    $this->assertStringEndsWith("}", $uglyJsonString);
+    $this->assertInternalType("string", $jsonOutput);
+
+    $this->assertStringStartsWith("{", $jsonOutput);
+    $this->assertStringEndsWith("}", $jsonOutput);
+
+    $this->assertStringStartsNotWith("+", $jsonOutput);
+    $this->assertStringEndsNotWith("+", $jsonOutput);
   }
 
-  public function test_pretty_json_output ()
+  public function test_table_output ()
   {
-    $prettyJsonString = trim($this->command->execute(["--output" => "json", "--pretty" => 1]), "\n ");
+    # NOTE: trim surrounding newline characters ('\n') for string assertions
+    $tableOutput = trim($this->command->execute(["--output" => "table"]), "\n ");
 
-    $this->assertInternalType("string", $prettyJsonString);
-    $this->assertStringStartsWith("{", $prettyJsonString);
-    $this->assertStringEndsWith("}", $prettyJsonString);
+    $this->assertInternalType("string", $tableOutput);
+
+    $this->assertStringStartsWith("+", $tableOutput);
+    $this->assertStringEndsWith("+", $tableOutput);
+
+    $this->assertStringStartsNotWith("{", $tableOutput);
+    $this->assertStringEndsNotWith("}", $tableOutput);
+  }
+
+  public function test_excluded_members_collection ()
+  {
+    $channelObject = json_decode($this->command->execute([
+      "--output" => "json",
+      "--exclude_members" => 1
+    ]))->channels[0];
+
+    $this->assertObjectNotHasAttribute("members", $channelObject);
+  }
+
+  public function test_included_members_collection ()
+    {
+    $channelObject = json_decode($this->command->execute([
+      "--output" => "json",
+      "--exclude_members" => 0
+    ]))->channels[0];
+
+    $this->assertObjectHasAttribute("members", $channelObject);
   }
 }
