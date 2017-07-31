@@ -5,9 +5,9 @@ namespace Slack\Tests;
 use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
 use Slack\Api\Client;
-use Slack\Tests\Commands\ChannelHistoryTestCommand;
+use Slack\Tests\Commands\ChannelsHistoryTestCommand;
 
-class ChannelHistoryCommandSpec extends TestCase
+class ChannelsHistoryCommandSpec extends TestCase
 {
   protected $client;
   protected $command;
@@ -22,7 +22,7 @@ class ChannelHistoryCommandSpec extends TestCase
       "token" => getenv("SLACK_API_TOKEN"),
     ]);
 
-    $this->command = new ChannelHistoryTestCommand;
+    $this->command = new ChannelsHistoryTestCommand;
   }
 
   protected function tearDown ()
@@ -30,5 +30,42 @@ class ChannelHistoryCommandSpec extends TestCase
     $env = null;
     $this->client = null;
     $this->command = null;
+  }
+
+  public function test_decoded_json_output ()
+  {
+    $decodedJson = json_decode($this->command->execute(["channel" => "C5BBK5MCP", "--output" => "json"]));
+
+    $this->assertInternalType("object", $decodedJson);
+    $this->assertInternalType("array", $decodedJson->messages);
+    $this->assertInternalType("object", $decodedJson->messages[0]);
+  }
+
+  public function test_json_output ()
+  {
+    # NOTE: trim surrounding newline characters ('\n') for string assertions
+    $jsonOutput = trim($this->command->execute(["channel" => "C5BBK5MCP", "--output" => "json"]), "\n ");
+
+    $this->assertInternalType("string", $jsonOutput);
+
+    $this->assertStringStartsWith("{", $jsonOutput);
+    $this->assertStringEndsWith("}", $jsonOutput);
+
+    $this->assertStringStartsNotWith("+", $jsonOutput);
+    $this->assertStringEndsNotWith("+", $jsonOutput);
+  }
+
+  public function test_table_output ()
+  {
+    # NOTE: trim surrounding newline characters ('\n') for string assertions
+    $tableOutput = trim($this->command->execute(["channel" => "C5BBK5MCP", "--output" => "table"]), "\n ");
+
+    $this->assertInternalType("string", $tableOutput);
+
+    $this->assertStringStartsWith("+", $tableOutput);
+    $this->assertStringEndsWith("+", $tableOutput);
+
+    $this->assertStringStartsNotWith("{", $tableOutput);
+    $this->assertStringEndsNotWith("}", $tableOutput);
   }
 }
