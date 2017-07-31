@@ -29,7 +29,7 @@ class ChannelsListCommand extends Command
       ->setHelp("Channels included are all channels that the caller is in, channels they are not currently in, and archived channels but does not include private channels. The number of (non-deactivated) members in each channel is also returned.\n\nTo retrieve a list of private channels, use the command groups:list\n\nHaving trouble getting an HTTP 200 response from this command? Try excluding the members list from each channel object using the --exclude_members=0 flag.")
 
       # Options
-      
+
       ->addOption("pretty", "p", InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0)
 
       ->addOption("output", "o", InputOption::VALUE_REQUIRED, "Output type for this command. Possible values include: table, json", "table")
@@ -118,7 +118,7 @@ class ChannelsListCommand extends Command
             break;
           case "table":
             $table = new Table($output);
-            $headers = $channels[0]->getTableHeaders();
+            $headers = Channel::getTableHeaders($channels[0]);
             $rows = array();
 
             # Insert the values of each channels attributes as row data
