@@ -31,4 +31,41 @@ class ChannelHistoryCommandSpec extends TestCase
     $this->client = null;
     $this->command = null;
   }
+
+  public function test_decoded_json_output ()
+  {
+    $decodedJson = json_decode($this->command->execute(["channel" => "C5BBK5MCP", "--output" => "json"]));
+
+    $this->assertInternalType("object", $decodedJson);
+    $this->assertInternalType("array", $decodedJson->messages);
+    $this->assertInternalType("object", $decodedJson->messages[0]);
+  }
+
+  public function test_json_output ()
+  {
+    # NOTE: trim surrounding newline characters ('\n') for string assertions
+    $jsonOutput = trim($this->command->execute(["channel" => "C5BBK5MCP", "--output" => "json"]), "\n ");
+
+    $this->assertInternalType("string", $jsonOutput);
+
+    $this->assertStringStartsWith("{", $jsonOutput);
+    $this->assertStringEndsWith("}", $jsonOutput);
+
+    $this->assertStringStartsNotWith("+", $jsonOutput);
+    $this->assertStringEndsNotWith("+", $jsonOutput);
+  }
+
+  public function test_table_output ()
+  {
+    # NOTE: trim surrounding newline characters ('\n') for string assertions
+    $tableOutput = trim($this->command->execute(["channel" => "C5BBK5MCP", "--output" => "table"]), "\n ");
+
+    $this->assertInternalType("string", $tableOutput);
+
+    $this->assertStringStartsWith("+", $tableOutput);
+    $this->assertStringEndsWith("+", $tableOutput);
+
+    $this->assertStringStartsNotWith("{", $tableOutput);
+    $this->assertStringEndsNotWith("}", $tableOutput);
+  }
 }
