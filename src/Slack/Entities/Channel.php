@@ -64,9 +64,14 @@ class Channel
    * @var int $unread_count_display Is a count of messages that the calling user has yet to read that matter to them. */
   private $unread_count_display;
 
-  public function getTableHeaders ()
+  /**
+   * Generate table headers from object properties
+   * @method getTableHeaders
+   * @param object $self Instance of Self
+   */
+  static function getTableHeaders (Self $self)
   {
-    $properties = get_object_vars($this);
+    $properties = get_object_vars($self);
 
     $headers = array();
     foreach ($properties as $property => $value):
@@ -159,16 +164,24 @@ class Channel
     return $this;
   }
 
-  public function getMembers (int $excluded = 1)
+  public function getMembers
+  (int $excluded = 1, string $format = "string")
   {
     switch ($excluded):
       case 0:
-        $members = "";
-        foreach ($this->members as $member):
-          $members .= "{$member},\n";
-        endforeach;
+        switch ($format) {
+          case "array":
+            return $this->members;
+            break;
+          case "string":
+            $members = "";
+            foreach ($this->members as $member):
+              $members .= "{$member},\n";
+            endforeach;
 
-        return $members;
+            return $members;
+            break;
+        }
         break;
       case 1:
         return "<fg=red>excluded</>";
@@ -182,18 +195,28 @@ class Channel
     return $this;
   }
 
-  public function getTopic (int $length = 14)
+  public function getTopic
+  (int $length = 14, string $format = "string")
   {
-    switch ($length):
-      case -1:
-        return $this->topic["value"];
+    switch ($format):
+      case "array":
+        return $this->topic;
         break;
-      default:
-        if (strlen($this->topic["value"]) < $length):
-          return $this->topic["value"];
-        else:
-          return substr($this->topic["value"], 0, $length) . " ...";
-        endif;
+      case "string":
+        switch ($length) {
+          case -1:
+            return $this->topic["value"];
+            break;
+          default:
+            if (strlen($this->topic["value"]) < $length):
+              return $this->topic["value"];
+            else:
+              return substr($this->topic["value"], 0, $length) . " ...";
+            endif;
+        }
+        break;
+        default:
+          return $this->topic;
     endswitch;
   }
 
@@ -203,18 +226,28 @@ class Channel
     return $this;
   }
 
-  public function getPurpose (int $length = 14)
+  public function getPurpose
+  (int $length = 14, string $format = "string")
   {
-    switch ($length):
-      case -1:
-        return $this->purpose["value"];
+    switch ($format):
+      case "array":
+        return $this->purpose;
         break;
-      default:
-        if (strlen($this->purpose["value"]) < $length):
-          return $this->purpose["value"];
-        else:
-          return substr($this->purpose["value"], 0, $length) . " ...";
-        endif;
+      case "string":
+        switch ($length) {
+          case -1:
+            return $this->purpose["value"];
+            break;
+          default:
+            if (strlen($this->purpose["value"]) < $length):
+              return $this->purpose["value"];
+            else:
+              return substr($this->purpose["value"], 0, $length) . " ...";
+            endif;
+        }
+        break;
+        default:
+          return $this->purpose;
     endswitch;
   }
 
@@ -240,7 +273,7 @@ class Channel
     return $this->last_read;
   }
 
-  public function setLatest (obj $latest)
+  public function setLatest (array $latest)
   {
     $this->latest = $latest;
     return $this;
