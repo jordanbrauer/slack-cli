@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Slack\Api\Client;
 use Slack\Tests\Commands\ChannelsListTestCommand;
 
-class SlackChannelsListCommandSpec extends TestCase
+class ChannelsListCommandSpec extends TestCase
 {
   protected $client;
   protected $command;

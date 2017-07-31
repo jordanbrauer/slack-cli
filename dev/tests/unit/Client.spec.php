@@ -6,7 +6,7 @@ use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
 use Slack\Api\Client;
 
-class ApiClientSpec extends TestCase
+class ClientSpec extends TestCase
 {
   protected $client;
 
