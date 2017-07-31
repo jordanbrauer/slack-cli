@@ -18,12 +18,19 @@ class ChannelHistoryCommand extends Command
   {
     $this
       ->setName("channel:history")
+
       ->setDescription("This method returns a portion of message events from the specified public channel.")
+
       ->setHelp("To read the entire history for a channel, call the method with no latest or oldest arguments, and then continue paging using the instructions below.\nTo retrieve a single message, specify its ts value as latest, set inclusive to true, and dial your count down to 1.")
+
+      # Arguments
 
       ->addArgument("channel", InputArgument::REQUIRED, "The channel that a message is being deleted from")
 
+      # Options
+
       ->addOption("count", null, InputOption::VALUE_REQUIRED, "Amount of messages to fetch from the specified channel", 100)
+
       ->addOption("pretty", null, InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0)
       ;
   }
