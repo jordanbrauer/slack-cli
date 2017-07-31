@@ -12,7 +12,7 @@ class ApiClientSpec extends TestCase
 
   protected function setUp ()
   {
-    $env = new Dotenv(__DIR__."/../../");
+    $env = new Dotenv(__DIR__."/../../../");
     $env->load();
 
     $this->client = new Client();
