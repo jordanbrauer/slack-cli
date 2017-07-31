@@ -6,63 +6,75 @@ class Channel
 {
   /**
    * @var string $id The unique ID of the channel. */
-  public $id;
+  private $id;
 
   /**
    * @var string $name The user friendly name of the channel. */
-  public $name;
+  private $name;
 
   /**
    * @var bool $is_channel Is this object a Channel object? */
-  public $is_channel;
+  private $is_channel;
 
   /**
    * @var int $created The unix timestamp of when the channel was created. */
-  public $created;
+  private $created;
 
   /**
    * @var string $creator The unique user ID of the user that created the channel. */
-  public $creator;
+  private $creator;
 
   /**
    * @var bool $is_archived Is the channel currently archived? */
-  public $is_archived;
+  private $is_archived;
 
   /**
    * @var bool $is_general Is the channel the default #general channel? */
-  public $is_general;
+  private $is_general;
 
   /**
    * @var array $members A list of the unique user IDs of members within the channel. */
-  public $members;
+  private $members;
 
   /**
    * @var array $topic An array containing the value, creator and last_set date of the channel topic. */
-  public $topic;
+  private $topic;
 
   /**
   * @var array $purpose An array containing the value, creator and last_set date of the channel purpose. */
-  public $purpose;
+  private $purpose;
 
   /**
    * @var bool $is_member Will be true if the calling member is part of the channel. */
-  public $is_member;
+  private $is_member;
 
   /**
    * @var string $last_read Is the timestamp for the last message the calling user has read in the channel. */
-  public $last_read;
+  private $last_read;
 
   /**
    * @var array $latest Is the latest Message in the channel. */
-  public $latest;
+  private $latest;
 
   /**
    * @var int $unread_count Is a full count of visible messages that the calling user has yet to read. */
-  public $unread_count;
+  private $unread_count;
 
   /**
    * @var int $unread_count_display Is a count of messages that the calling user has yet to read that matter to them. */
-  public $unread_count_display;
+  private $unread_count_display;
+
+  public function getTableHeaders ()
+  {
+    $properties = get_object_vars($this);
+
+    $headers = array();
+    foreach ($properties as $property => $value):
+      array_push($headers, $property);
+    endforeach;
+
+    return $headers;
+  }
 
   public function setId (string $id)
   {
@@ -149,7 +161,7 @@ class Channel
 
   public function getMembers (int $excluded = 1)
   {
-    switch($excluded):
+    switch ($excluded):
       case 0:
         $members = "";
         foreach ($this->members as $member):
