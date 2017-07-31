@@ -14,8 +14,8 @@ use Symfony\Component\Console\Application;
 $application = new Application('Slack CLI', '0.0.1');
 
 $application->addCommands([
+  new Command\ChannelsHistoryCommand,
   new Command\ChannelsListCommand,
-  new Command\ChannelHistoryCommand,
   new Command\ChatDeleteCommand,
   new Command\ChatDeleteBatchCommand,
 ]);
