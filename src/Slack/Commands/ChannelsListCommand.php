@@ -28,95 +28,134 @@ class ChannelsListCommand extends Command
 
       ->setHelp("Channels included are all channels that the caller is in, channels they are not currently in, and archived channels but does not include private channels. The number of (non-deactivated) members in each channel is also returned.\n\nTo retrieve a list of private channels, use the command groups:list\n\nHaving trouble getting an HTTP 200 response from this command? Try excluding the members list from each channel object using the --exclude_members=0 flag.")
 
+      # Options
+      
+      ->addOption("pretty", "p", InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0)
+
+      ->addOption("output", "o", InputOption::VALUE_REQUIRED, "Output type for this command. Possible values include: table, json", "table")
+
       ->addOption("exclude_archived", null, InputOption::VALUE_REQUIRED, "Exclude archived channels from the listing.", 1)
+
       ->addOption("exclude_members", null, InputOption::VALUE_REQUIRED, "Exclude the members collection from each channel", 1)
       ;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    # Styled IO
     $io = new SymfonyStyle($input, $output);
 
-    $encoders = array(new JsonEncoder);
-    $normalizers = array(new ObjectNormalizer);
+    # JSON Serializer and object normalizer (see Symfony serializer component)
+    $serializer = new Serializer(
+      array(new ObjectNormalizer),
+      array(new JsonEncoder)
+    );
 
-    $serializer = new Serializer($normalizers, $encoders);
-
+    # Load environment
     $env = new Dotenv(__DIR__."/../../../");
     $env->load();
 
+    # Create client
     $client = new Client([
       "base_url" => "https://slack.com/api",
       "token" => getenv("SLACK_API_TOKEN")
     ]);
 
+    # Request method
     $request = $client->ping("channels.list", [
+      "pretty" => $input->getOption("pretty"),
       "exclude_archived" => $input->getOption("exclude_archived"),
       "exclude_members" => $input->getOption("exclude_members"),
     ]);
 
+    # Response object (mostly syntactical sugar)
     $response = (object) [
       "code" => $request->getStatusCode(),
       "body" => $request->getBody(),
+      "ok" => json_decode($request->getBody())->ok,
     ];
 
-    $channelData = json_decode($response->body)->channels;
+    # Debug information
+    if ($io->isVerbose()):
+      $io->text("<options=bold,underscore>Debug:</>");
 
-    // Deserialize each channel and push them into an array
-    $channels = array();
-    foreach ($channelData as $channelDataSet):
-      $channel = $serializer->deserialize(json_encode($channelDataSet), Channel::class, 'json');
+      $io->text("URL Method: <comment>{$client->getMethod()}</comment>");
 
-      array_push($channels, $channel);
-    endforeach;
-
-    if ($response->code == 200):
-      if ($io->isVerbose()):
-        $io->text("Response Code: <info>{$response->code}</info>");
-        $io->text("URL Method: <comment>{$client->getMethod()}</comment>");
+      if ($io->isVeryVerbose()):
+        $io->text("Pretty JSON: <comment>{$input->getOption('pretty')}</comment>");
         $io->text("Excluding Archived Channels: <comment>{$input->getOption('exclude_archived')}</comment>");
         $io->text("Excluding Members: <comment>{$input->getOption('exclude_members')}</comment>");
+        $io->text("Output Style: <comment>{$input->getOption('output')}</comment>");
       endif;
 
-      $table = new Table($output);
-      $headers = array();
-      $rows = array();
+      if ($io->isDebug()):
+        $io->text("Response Code: <fg=cyan>{$response->code}</>");
+      endif;
 
-      // Grab the attributes of the channel object for use as headers
-      $headers = array();
-      foreach ($channels[0] as $property => $value):
-        array_push($headers, $property);
-      endforeach;
+      $io->newLine();
+    endif;
 
-      // Insert the values of each channels attributes as row data
-      foreach ($channels as $channel):
-        $values = array();
-        array_push($values, $channel->getId());
-        array_push($values, $channel->getName());
-        array_push($values, $channel->getIsChannel());
-        array_push($values, $channel->getCreated());
-        array_push($values, $channel->getCreator());
-        array_push($values, $channel->getIsArchived());
-        array_push($values, $channel->getIsGeneral());
-        array_push($values, $channel->getMembers($input->getOption("exclude_members")));
-        array_push($values, $channel->getTopic());
-        array_push($values, $channel->getPurpose());
-        array_push($values, $channel->getIsMember());
-        array_push($values, $channel->getLastRead());
-        array_push($values, $channel->getLatest());
-        array_push($values, $channel->getUnreadCount());
-        array_push($values, $channel->getUnreadCountDisplay());
-        array_push($rows, $values);
-      endforeach;
+    # Output based on response code and ok status
+    if ($response->code != 200):
+      return $io->error([$response->code, $response->body]);
+    elseif ($response->code == 200):
+      if (!$response->ok):
+        return $io->error([$response->code, $response->body]);
+      else:
+        $channelData = json_decode($response->body)->channels;
 
-      // Render the table output
-      $table
-        ->setHeaders($headers)
-        ->setRows($rows)
-      ;
-      $table->render();
-    else:
-      $io->error([$response->code, $response->body]);
+        # Deserialize each channel object and push them into an array
+        $channels = array();
+        foreach ($channelData as $channelDataSet):
+          $channel = $serializer->deserialize(json_encode($channelDataSet), Channel::class, "json");
+
+          array_push($channels, $channel);
+        endforeach;
+
+        switch ($input->getOption("output")):
+          case "json":
+            return $io->text($response->body);
+            break;
+          case "table":
+            $table = new Table($output);
+            $headers = $channels[0]->getTableHeaders();
+            $rows = array();
+
+            # Insert the values of each channels attributes as row data
+            # NOTE: order is important for the data to show up in the correct columns
+            foreach ($channels as $channel):
+              $values = array(
+                $channel->getId(),
+                $channel->getName(),
+                $channel->getIsChannel(),
+                $channel->getCreated(),
+                $channel->getCreator(),
+                $channel->getIsArchived(),
+                $channel->getIsGeneral(),
+                $channel->getMembers($input->getOption("exclude_members")),
+                $channel->getTopic(0), # 0 length for dev purposes (small terminal windows)
+                $channel->getPurpose(0), # 0 length for dev purposes (small terminal windows)
+                $channel->getIsMember(),
+                $channel->getLastRead(),
+                $channel->getLatest(),
+                $channel->getUnreadCount(),
+                $channel->getUnreadCountDisplay(),
+              );
+
+              array_push($rows, $values);
+            endforeach;
+
+            # Render the table output
+            return $table
+              ->setHeaders($headers)
+              ->setRows($rows)
+              ->render()
+              ;
+            break;
+          default:
+            return $io->text($response->body);
+        endswitch;
+      endif;
     endif;
   }
 }
