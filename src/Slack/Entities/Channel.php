@@ -2,84 +2,69 @@
 
 namespace Slack\Entities;
 
-class Channel
+use Slack\Entities\Entity;
+
+class Channel extends Entity
 {
   /**
    * @var string $id The unique ID of the channel. */
-  private $id;
+  protected $id;
 
   /**
    * @var string $name The user friendly name of the channel. */
-  private $name;
+  protected $name;
 
   /**
    * @var bool $is_channel Is this object a Channel object? */
-  private $is_channel;
+  protected $is_channel;
 
   /**
    * @var int $created The unix timestamp of when the channel was created. */
-  private $created;
+  protected $created;
 
   /**
    * @var string $creator The unique user ID of the user that created the channel. */
-  private $creator;
+  protected $creator;
 
   /**
    * @var bool $is_archived Is the channel currently archived? */
-  private $is_archived;
+  protected $is_archived;
 
   /**
    * @var bool $is_general Is the channel the default #general channel? */
-  private $is_general;
+  protected $is_general;
 
   /**
    * @var array $members A list of the unique user IDs of members within the channel. */
-  private $members;
+  protected $members;
 
   /**
    * @var array $topic An array containing the value, creator and last_set date of the channel topic. */
-  private $topic;
+  protected $topic;
 
   /**
   * @var array $purpose An array containing the value, creator and last_set date of the channel purpose. */
-  private $purpose;
+  protected $purpose;
 
   /**
    * @var bool $is_member Will be true if the calling member is part of the channel. */
-  private $is_member;
+  protected $is_member;
 
   /**
    * @var string $last_read Is the timestamp for the last message the calling user has read in the channel. */
-  private $last_read;
+  protected $last_read;
 
   /**
    * @var array $latest Is the latest Message in the channel. */
-  private $latest;
+  protected $latest;
 
   /**
    * @var int $unread_count Is a full count of visible messages that the calling user has yet to read. */
-  private $unread_count;
+  protected $unread_count;
 
   /**
    * @var int $unread_count_display Is a count of messages that the calling user has yet to read that matter to them. */
-  private $unread_count_display;
-
-  /**
-   * Generate table headers from object properties
-   * @method getTableHeaders
-   * @param object $self Instance of Self
-   */
-  static function getTableHeaders (Self $self)
-  {
-    $properties = get_object_vars($self);
-
-    $headers = array();
-    foreach ($properties as $property => $value):
-      array_push($headers, $property);
-    endforeach;
-
-    return $headers;
-  }
+  protected $unread_count_display;
 
   public function setId (string $id)
   {

@@ -2,62 +2,47 @@
 
 namespace Slack\Entities;
 
-class Message
+use Slack\Entities\Entity;
+
+class Message extends Entity
 {
   /**
    * @var string $type The type of message. */
-  private $type;
+  protected $type;
 
   /**
    * @var string $type The subtype of message. E.g., channel joins, events, etc */
-  private $subtype;
+  protected $subtype;
 
   /**
    * @var string $channel The channel that the message belongs to. */
-  private $channel;
+  protected $channel;
 
   /**
    * @var string $user The unique user ID of the user that sent the message. */
-  private $user;
+  protected $user;
 
   /**
    * @var string $text The messages text */
-  private $text;
+  protected $text;
 
   /**
    * @var string $ts The message timestamp */
-  private $ts;
+  protected $ts;
 
   /**
    * @var bool $is_starred The is_starred property is present and true if the calling user has starred the message, else it is omitted. */
-  private $is_starred;
+  protected $is_starred;
 
   /**
    * @var array $pinned_to If present, contains the IDs of any channels to which the message is currently pinned. */
-  private $pinned_to;
+  protected $pinned_to;
 
   /**
    * @var array $reactions An array of reactions, their counts, and reacting users. See section "## Stars, pins, and reactions" for more info.
    * @link https://api.slack.com/events/message
    */
-  private $reactions;
-
-  /**
-   * Generate table headers from object properties
-   * @method getTableHeaders
-   * @param object $self Instance of Self in order to access private attributes;
-   */
-  static function getTableHeaders (Self $self)
-  {
-    $properties = get_object_vars($self);
-
-    $headers = array();
-    foreach ($properties as $property => $value):
-      array_push($headers, $property);
-    endforeach;
-
-    return $headers;
-  }
+  protected $reactions;
 
   public function setType (string $type)
   {
