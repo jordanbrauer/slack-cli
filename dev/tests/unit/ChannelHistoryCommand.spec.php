@@ -5,9 +5,9 @@ namespace Slack\Tests;
 use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
 use Slack\Api\Client;
-use Slack\Tests\Commands\ChannelHistoryTestCommand;
+use Slack\Tests\Commands\ChannelsHistoryTestCommand;
 
-class ChannelHistoryCommandSpec extends TestCase
+class ChannelsHistoryCommandSpec extends TestCase
 {
   protected $client;
   protected $command;
@@ -22,7 +22,7 @@ class ChannelHistoryCommandSpec extends TestCase
       "token" => getenv("SLACK_API_TOKEN"),
     ]);
 
-    $this->command = new ChannelHistoryTestCommand;
+    $this->command = new ChannelsHistoryTestCommand;
   }
 
   protected function tearDown ()

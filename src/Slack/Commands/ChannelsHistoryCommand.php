@@ -17,12 +17,14 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class ChannelHistoryCommand extends Command
+class ChannelsHistoryCommand extends Command
 {
   protected function configure ()
   {
     $this
-      ->setName("channel:history")
+      ->setName("channels:history")
+
+      ->setAliases(["channel:history"])
 
       ->setDescription("This method returns a portion of message events from the specified public channel.")
 
@@ -158,7 +160,7 @@ class ChannelHistoryCommand extends Command
 
             $jsonTimestamps = $input->getOption("pretty") ?
               json_encode($messageTimestamps, JSON_PRETTY_PRINT) : json_encode($messageTimestamps);
-              
+
             return $io->text($jsonTimestamps);
             break;
           default:
