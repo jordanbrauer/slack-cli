@@ -4,9 +4,9 @@ namespace Slack\Tests\Commands;
 
 use Slack\Commands\ChannelsListCommand;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Tester\CommandTester as TestCommand;
 
-class ChannelsListCommandTest
+class ChannelsListTestCommand
 {
   public function execute (array $parameters = array())
   {
@@ -17,9 +17,9 @@ class ChannelsListCommandTest
     $command = $application->find("channels:list");
     $parameters["command"] = $command->getName();
 
-    $commandTester = new CommandTester($command);
-    $commandTester->execute($parameters);
+    $testCommand = new TestCommand($command);
+    $testCommand->execute($parameters);
 
-    return $commandTester->getDisplay();
+    return $testCommand->getDisplay();
   }
 }
