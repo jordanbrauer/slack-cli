@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 0.0.1
+ */
+
+declare (strict_types = 1);
+
 namespace Slack\Entities;
 
-use Slack\Entities\Entity;
-
-class Channel extends Entity
+class ChannelEntity extends Entity
 {
   /**
    * @var string $id The unique ID of the channel. */

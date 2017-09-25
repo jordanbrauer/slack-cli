@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 0.0.1
+ */
+
+declare (strict_types = 1);
+
 namespace Slack\Commands;
 
 use Dotenv\Dotenv;
 use Slack\Api\Client;
-use Slack\Entities\Channel;
+use Slack\Entities\ChannelEntity as Channel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,11 +69,13 @@ class ChannelsListCommand extends Command
       "exclude_members" => $input->getOption("exclude_members"),
     ]);
 
+    // $body = json_decode($request->getBody()->getContents())->ok;
+    // var_dump($body);
     # Response object (mostly syntactical sugar)
     $response = (object) [
       "code" => $request->getStatusCode(),
-      "body" => $request->getBody(),
-      "ok" => json_decode($request->getBody())->ok,
+      "body" => $request->getBody()->getContents(),
+      "ok" => json_decode($request->getBody()->getContents())["ok"],
     ];
 
     # Debug information
@@ -93,7 +102,7 @@ class ChannelsListCommand extends Command
     if ($response->code != 200):
       return $io->error([$response->code, $response->body]);
     elseif ($response->code == 200):
-      if (!$response->ok):
+      if ($response->ok === false):
         return $io->error([$response->code, $response->body]);
       else:
         switch ($input->getOption("output")):
