@@ -11,8 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -48,12 +46,6 @@ class ChannelsHistoryCommand extends Command
   {
     # Styled IO
     $io = new SymfonyStyle($input, $output);
-
-    # JSON Serializer and object normalizer (see Symfony serializer component)
-    $serializer = new Serializer(
-      array(new ObjectNormalizer),
-      array(new JsonEncoder)
-    );
 
     # Load environment
     $env = new Dotenv(__DIR__."/../../../");
@@ -106,49 +98,29 @@ class ChannelsHistoryCommand extends Command
       if (!$response->ok):
         return $io->error([$response->code, $response->body]);
       else:
-        $messageData = json_decode($response->body)->messages;
-
-        # Deserialize each channel object and push them into an array
-        $messages = array();
-        foreach ($messageData as $messageaSet):
-          $message = $serializer->deserialize(json_encode($messageaSet), Message::class, "json");
-
-          array_push($messages, $message);
-        endforeach;
-
         switch ($input->getOption("output")):
           case "json":
-            return $io->text($response->body);
+            return Message::getJsonOutput($io, $response->body);
             break;
           case "table":
-            $table = new Table($output);
-            $headers = Message::getTableHeaders();
-            $rows = array();
+            # JSON Serializer and object normalizer (see Symfony serializer component)
+            $serializer = new Serializer(
+              array(new ObjectNormalizer),
+              array(new JsonEncoder)
+            );
 
-            # Insert the values of each messages attributes as row data
-            # NOTE: order is important for the data to show up in the correct columns
-            foreach ($messages as $message):
-              $values = array(
-                $message->getType(),
-                $message->getSubtype(),
-                $message->getChannel(),
-                $message->getUser(),
-                $message->getText(),
-                $message->getTs(),
-                $message->getIsStarred(),
-                $message->getPinnedTo(),
-                $message->getReactions(),
-              );
+            # Deserialize each channel object and push them into an array
+            $messages = array();
+            foreach (json_decode($response->body)->messages as $messageaSet):
+              $message = $serializer->deserialize(json_encode($messageaSet), Message::class, "json");
 
-              array_push($rows, $values);
+              array_push($messages, $message);
             endforeach;
 
+            // $messages = Collection::unserializedJson(json_decode($response->body)->messages, Message::class);
+
             # Render the table output
-            return $table
-              ->setHeaders($headers)
-              ->setRows($rows)
-              ->render()
-              ;
+            return Message::getTableOutput($output, $messages);
             break;
           case "timestamps":
             $messages = json_decode($response->body)->messages;

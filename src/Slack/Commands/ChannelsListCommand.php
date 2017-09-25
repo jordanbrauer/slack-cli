@@ -45,12 +45,6 @@ class ChannelsListCommand extends Command
     # Styled IO
     $io = new SymfonyStyle($input, $output);
 
-    # JSON Serializer and object normalizer (see Symfony serializer component)
-    $serializer = new Serializer(
-      array(new ObjectNormalizer),
-      array(new JsonEncoder)
-    );
-
     # Load environment
     $env = new Dotenv(__DIR__."/../../../");
     $env->load();
@@ -102,55 +96,33 @@ class ChannelsListCommand extends Command
       if (!$response->ok):
         return $io->error([$response->code, $response->body]);
       else:
-        $channelData = json_decode($response->body)->channels;
-
-        # Deserialize each channel object and push them into an array
-        $channels = array();
-        foreach ($channelData as $channelDataSet):
-          $channel = $serializer->deserialize(json_encode($channelDataSet), Channel::class, "json");
-
-          array_push($channels, $channel);
-        endforeach;
-
         switch ($input->getOption("output")):
           case "json":
-            return $io->text($response->body);
+            return Channel::getJsonOutput($io, $response->body);
             break;
           case "table":
-            $table = new Table($output);
-            $headers = Channel::getTableHeaders();
-            $rows = array();
+            # JSON Serializer and object normalizer (see Symfony serializer component)
+            $serializer = new Serializer(
+              array(new ObjectNormalizer),
+              array(new JsonEncoder)
+            );
 
-            # Insert the values of each channels attributes as row data
-            # NOTE: order is important for the data to show up in the correct columns
-            foreach ($channels as $channel):
-              $values = array(
-                $channel->getId(),
-                $channel->getName(),
-                $channel->getIsChannel(),
-                $channel->getCreated(),
-                $channel->getCreator(),
-                $channel->getIsArchived(),
-                $channel->getIsGeneral(),
-                $channel->getMembers($input->getOption("exclude_members")),
-                $channel->getTopic(0), # 0 length for dev purposes (small terminal windows)
-                $channel->getPurpose(0), # 0 length for dev purposes (small terminal windows)
-                $channel->getIsMember(),
-                $channel->getLastRead(),
-                $channel->getLatest(),
-                $channel->getUnreadCount(),
-                $channel->getUnreadCountDisplay(),
-              );
+            # Deserialize each channel object and push them into an array
+            $channels = array();
+            foreach (json_decode($response->body)->channels as $channelDataSet):
+              $channel = $serializer->deserialize(json_encode($channelDataSet), Channel::class, "json");
 
-              array_push($rows, $values);
+              array_push($channels, $channel);
             endforeach;
 
+            // $channels = Collection::unserializedJson(json_decode($response->body)->messages, Channel::class);
+
             # Render the table output
-            return $table
-              ->setHeaders($headers)
-              ->setRows($rows)
-              ->render()
-              ;
+            return Channel::getTableOutput($output, $channels, [
+              "getMembers" => [$input->getOption("exclude_members")],
+              "getTopic" => [0],
+              "getPurpose" => [0],
+            ]);
             break;
           default:
             return $io->text($response->body);
