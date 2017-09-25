@@ -4,7 +4,7 @@ namespace Slack\Tests;
 
 use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
-use Slack\Entities\Message;
+use Slack\Entities\MessageEntity as Message;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;

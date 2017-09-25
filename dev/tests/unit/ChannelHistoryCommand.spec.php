@@ -38,7 +38,9 @@ class ChannelsHistoryCommandSpec extends TestCase
 
     $this->assertInternalType("object", $decodedJson);
     $this->assertInternalType("array", $decodedJson->messages);
-    $this->assertInternalType("object", $decodedJson->messages[0]);
+    if (count($decodedJson->messages) > 0):
+      $this->assertInternalType("object", $decodedJson->messages[0]);
+    endif;
   }
 
   public function test_json_output ()
