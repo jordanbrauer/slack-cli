@@ -42,6 +42,7 @@ class ChatDeleteBatchCommand extends Command
       "command" => "channel:history",
       "channel" => $input->getArgument("channel"),
       "--count" => $input->getOption("count"),
+      "--output" => "timestamps",
     );
 
     $channelHistoryInput = new ArrayInput($channelHistoryArgs);
