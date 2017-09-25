@@ -166,6 +166,8 @@ class Channel extends Entity
 
             return $members;
             break;
+          default:
+            return $this->members;
         }
         break;
       case 1:
