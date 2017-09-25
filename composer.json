@@ -19,7 +19,12 @@
         "vlucas/phpdotenv": "^2.4",
         "guzzlehttp/guzzle": "^6.3",
         "symfony/serializer": "^3.3",
-        "symfony/property-access": "^3.3"
+        "symfony/property-access": "^3.3",
+        "symfony/dotenv": "^3.3",
+        "symfony/dependency-injection": "^3.3",
+        "symfony/config": "^3.3",
+        "symfony/finder": "^3.3",
+        "symfony/filesystem": "^3.3"
     },
     "autoload": {
       "psr-0": {
