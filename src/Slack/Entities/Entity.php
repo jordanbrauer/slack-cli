@@ -1,20 +1,49 @@
 <?php
 
+/**
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 0.0.1
+ */
+
+declare (strict_types = 1);
+
 namespace Slack\Entities;
 
-use Slack\Entities\EntityInterface;
-use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\{
+  Output\OutputInterface,
+  Helper\Table,
+  Style\SymfonyStyle
+};
 
-class Entity implements EntityInterface
+abstract class Entity implements EntityInterface
 {
-  public static function getJsonOutput
-  (\Symfony\Component\Console\Style\SymfonyStyle $io, $json)
+  /**
+   * @method getJsonOutput
+   *
+   * Return the default generic JSON output from the API response
+   *
+   * @param SymfonyStyle $io An instance of Symfony\Component\Console\Style\SymfonyStyle
+   * @param $json The JSON string to be output to the console
+   *
+   * @return string
+   */
+  public static function getJsonOutput (SymfonyStyle $io, $json)
   {
     return $io->text($json);
   }
 
-  public static function getTableOutput
-  (\Symfony\Component\Console\Output\OutputInterface $output, $entities = [], array $parameters = [])
+  /**
+   * @method getTableOutput
+   *
+   * Return a formatted table output for a Slack entity
+   *
+   * @param OutputInterface $output An instance of Symfony\Component\Console\OutputInterface
+   * @param array $entities An array entities to have rows costructed for the table output
+   * @param array $parameter An array containing a list of command parameters, dictating certain output results
+   *
+   * @return string
+   */
+  public static function getTableOutput (OutputInterface $output, array $entities = array(), array $parameters = array())
   {
     $table = new Table($output);
     return $table
@@ -25,10 +54,10 @@ class Entity implements EntityInterface
   }
 
   /**
+   * @method getTableHeaders
    *
    * Generate table headers from object properties
    *
-   * @method getTableHeaders
    * @return array
    */
   public static function getTableHeaders ()
@@ -44,16 +73,17 @@ class Entity implements EntityInterface
   }
 
   /**
+   * @method getTableRows
    *
    * Generate a table row from object property values
    * NOTE: Implement within each unique Entity (Channel, Message, etc) based on data needs.
    *
-   * @method getTableRows
    * @param array $entities An array of Entity objects
+   * @param array $parameters An array containing a list of command parameters, dictating certain output results
+   *
    * @return array
    */
-  public static function getTableRows
-  (array $entities = [], array $parameters = [])
+  public static function getTableRows (array $entities = array(), array $parameters = array())
   {
     return array_map(
       function ($entity) use ($parameters) {
