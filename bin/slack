@@ -8,7 +8,7 @@ ini_set('display_errors', 1);
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Slack\Commands as Command;
+use Slack\Console\Commands as Command;
 use Symfony\Component\Console\Application;
 
 $application = new Application('Slack CLI', '0.0.1');

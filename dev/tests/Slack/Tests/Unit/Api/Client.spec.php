@@ -1,6 +1,6 @@
 <?php
 
-namespace Slack\Tests;
+namespace Slack\Tests\Unit\Api;
 
 use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ class ClientSpec extends TestCase
 
   protected function setUp ()
   {
-    $env = new Dotenv(__DIR__."/../../../");
+    $env = new Dotenv(__DIR__."/../../../../../../");
     $env->load();
 
     $this->client = new Client();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Slack\Commands;
+namespace Slack\Console\Commands;
 
 use Dotenv\Dotenv;
 use Slack\Api\Client;
@@ -32,7 +32,7 @@ class ChatDeleteCommand extends Command
   {
     $io = new SymfonyStyle($input, $output);
 
-    $env = new Dotenv(__DIR__."/../../../");
+    $env = new Dotenv(__DIR__."/../../../../");
     $env->load();
 
     $client = new Client([

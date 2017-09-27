@@ -1,11 +1,11 @@
 <?php
 
-namespace Slack\Tests;
+namespace Slack\Tests\Unit\Console\Commands;
 
 use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
 use Slack\Api\Client;
-use Slack\Tests\Commands\ChannelsListTestCommand;
+use Slack\Console\Commands\Tests\ChannelsListTestCommand;
 
 class ChannelsListCommandSpec extends TestCase
 {
@@ -14,7 +14,7 @@ class ChannelsListCommandSpec extends TestCase
 
   protected function setUp ()
   {
-    $env = new Dotenv(__DIR__."/../../../");
+    $env = new Dotenv(__DIR__."/../../../../../../../");
     $env->load();
 
     $this->client = new Client([

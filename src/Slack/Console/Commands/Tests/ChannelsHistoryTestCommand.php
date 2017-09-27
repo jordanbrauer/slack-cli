@@ -1,20 +1,20 @@
 <?php
 
-namespace Slack\Tests\Commands;
+namespace Slack\Console\Commands\Tests;
 
-use Slack\Commands\ChannelsListCommand;
+use Slack\Console\Commands\ChannelsHistoryCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester as TestCommand;
 
-class ChannelsListTestCommand
+class ChannelsHistoryTestCommand
 {
   public function execute (array $parameters = array())
   {
     $application = new Application("Slack CLI", "0.0.1");
 
-    $application->add(new ChannelsListCommand);
+    $application->add(new ChannelsHistoryCommand);
 
-    $command = $application->find("channels:list");
+    $command = $application->find("channel:history");
     $parameters["command"] = $command->getName();
 
     $testCommand = new TestCommand($command);
