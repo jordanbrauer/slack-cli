@@ -1,6 +1,6 @@
 <?php
 
-namespace Slack\Commands;
+namespace Slack\Console\Commands;
 
 use Slack\Api\Client;
 use Symfony\Component\Console\Command\Command;

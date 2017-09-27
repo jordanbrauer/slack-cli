@@ -1,8 +1,7 @@
 <?php
 
-namespace Slack\Tests;
+namespace Slack\Tests\Unit\Entities;
 
-use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
 use Slack\Entities\MessageEntity as Message;
 use Symfony\Component\Serializer\Serializer;

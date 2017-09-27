@@ -27,8 +27,8 @@
         "symfony/filesystem": "^3.3"
     },
     "autoload": {
-      "psr-0": {
-        "Slack\\": "src/"
+      "psr-4": {
+        "Slack\\": "src/Slack/"
       }
     },
     "require-dev": {
@@ -36,7 +36,7 @@
     },
     "autoload-dev": {
       "psr-4": {
-        "Slack\\Tests\\": "dev/tests/"
+        "Slack\\Tests\\Unit\\": "dev/tests/Slack/"
       }
     }
 }

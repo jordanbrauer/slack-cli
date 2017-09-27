@@ -7,7 +7,7 @@
 
 declare (strict_types = 1);
 
-namespace Slack\Commands;
+namespace Slack\Console\Commands;
 
 use Dotenv\Dotenv;
 use Slack\Api\Client;
@@ -53,7 +53,7 @@ class ChannelsListCommand extends Command
     $io = new SymfonyStyle($input, $output);
 
     # Load environment
-    $env = new Dotenv(__DIR__."/../../../");
+    $env = new Dotenv(__DIR__."/../../../../");
     $env->load();
 
     # Create client
