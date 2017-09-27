@@ -1,46 +1,53 @@
 <?php
 
-/**
- * @author Jordan Brauer <info@jordanbrauer.ca>
- * @version 0.0.1
- */
-
 declare (strict_types = 1);
 
 namespace Slack\Api\Entities;
 
+/**
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 0.0.1
+ */
 class MessageEntity extends Entity
 {
   /**
-   * @var string $type The type of message. */
+   * @var string $type The type of message.
+   */
   protected $type;
 
   /**
-   * @var string $type The subtype of message. E.g., channel joins, events, etc */
+   * @var string $type The subtype of message. E.g., channel joins, events, etc
+   */
   protected $subtype;
 
   /**
-   * @var string $channel The channel that the message belongs to. */
+   * @var string $channel The channel that the message belongs to.
+   */
   protected $channel;
 
   /**
-   * @var string $user The unique user ID of the user that sent the message. */
+   * @var string $user The unique user ID of the user that sent the message.
+   */
   protected $user;
 
   /**
-   * @var string $text The messages text */
+   * @var string $text The messages text
+   */
   protected $text;
 
   /**
-   * @var string $ts The message timestamp */
+   * @var string $ts The message timestamp
+   */
   protected $ts;
 
   /**
-   * @var bool $is_starred The is_starred property is present and true if the calling user has starred the message, else it is omitted. */
+   * @var bool $is_starred The is_starred property is present and true if the calling user has starred the message, else it is omitted.
+   */
   protected $is_starred;
 
   /**
-   * @var array $pinned_to If present, contains the IDs of any channels to which the message is currently pinned. */
+   * @var array $pinned_to If present, contains the IDs of any channels to which the message is currently pinned.
+   */
   protected $pinned_to;
 
   /**

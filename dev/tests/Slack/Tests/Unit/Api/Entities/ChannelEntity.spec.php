@@ -1,5 +1,7 @@
 <?php
 
+declare (strict_types = 1);
+
 namespace Slack\Tests\Unit\Api\Entities;
 
 use PHPUnit\Framework\TestCase;
@@ -10,13 +12,9 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ChannelEntitySpec extends TestCase
 {
-  protected $json;
-  protected $serializer;
-  protected $channel;
-
   protected function setUp ()
   {
-    $this->json = json_encode([
+    $json = json_encode([
       "id" => "C024BE91L",
       "name" => "fun",
       "is_channel" => true,
@@ -45,20 +43,18 @@ class ChannelEntitySpec extends TestCase
       "unread_count_display" => 0
     ]);
 
-    # JSON Serializer and object normalizer (see Symfony serializer component)
     $this->serializer = new Serializer(
       array(new ObjectNormalizer),
       array(new JsonEncoder)
     );
 
-    $this->channel = $this->serializer->deserialize($this->json, Channel::class, "json");
+    $this->channel = $this->serializer->deserialize($json, Channel::class, "json");
   }
 
   protected function tearDown ()
   {
-    $this->json = null;
-    $this->serializer = null;
-    $this->channel = null;
+    unset($this->serializer);
+    unset($this->channel);
   }
 
   public function test_entity_serializatoin ()
@@ -101,7 +97,7 @@ class ChannelEntitySpec extends TestCase
     $this->assertStringEndsWith("}", $serializedChannel);
 
     // NOTE:BUG: Symfony serializer does not copy attribute names properly
-    // $this->assertEquals($this->json, $serializedChannel);
+    // $this->assertEquals($json, $serializedChannel);
   }
 
   public function test_channel_entity_attribute_id ()
