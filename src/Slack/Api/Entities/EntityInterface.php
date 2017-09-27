@@ -7,7 +7,7 @@
 
 declare (strict_types = 1);
 
-namespace Slack\Entities;
+namespace Slack\Api\Entities;
 
 use Symfony\Component\Console\{
   Output\OutputInterface,

@@ -4,7 +4,7 @@ namespace Slack\Console\Commands;
 
 use Dotenv\Dotenv;
 use Slack\Api\Client;
-use Slack\Entities\MessageEntity as Message;
+use Slack\Api\Entities\MessageEntity as Message;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

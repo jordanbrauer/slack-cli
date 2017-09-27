@@ -1,9 +1,9 @@
 <?php
 
-namespace Slack\Tests\Unit\Entities;
+namespace Slack\Tests\Unit\Api\Entities;
 
 use PHPUnit\Framework\TestCase;
-use Slack\Entities\MessageEntity as Message;
+use Slack\Api\Entities\MessageEntity as Message;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;

@@ -11,7 +11,7 @@ namespace Slack\Console\Commands;
 
 use Dotenv\Dotenv;
 use Slack\Api\Client;
-use Slack\Entities\ChannelEntity as Channel;
+use Slack\Api\Entities\ChannelEntity as Channel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
