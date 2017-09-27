@@ -1,74 +1,90 @@
 <?php
 
-/**
- * @author Jordan Brauer <info@jordanbrauer.ca>
- * @version 0.0.1
- */
-
 declare (strict_types = 1);
 
 namespace Slack\Api\Entities;
 
+/**
+ * A channel entity contains information about a workspace channel.
+ *
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 0.0.1
+ */
 class ChannelEntity extends Entity
 {
   /**
-   * @var string $id The unique ID of the channel. */
+   * @var string $id The unique ID of the channel.
+   */
   protected $id;
 
   /**
-   * @var string $name The user friendly name of the channel. */
+   * @var string $name The user friendly name of the channel.
+   */
   protected $name;
 
   /**
-   * @var bool $is_channel Is this object a Channel object? */
+   * @var bool $is_channel Is this object a Channel object?
+   */
   protected $is_channel;
 
   /**
-   * @var int $created The unix timestamp of when the channel was created. */
+   * @var int $created The unix timestamp of when the channel was created.
+   */
   protected $created;
 
   /**
-   * @var string $creator The unique user ID of the user that created the channel. */
+   * @var string $creator The unique user ID of the user that created the channel.
+   */
   protected $creator;
 
   /**
-   * @var bool $is_archived Is the channel currently archived? */
+   * @var bool $is_archived Is the channel currently archived?
+   */
   protected $is_archived;
 
   /**
-   * @var bool $is_general Is the channel the default #general channel? */
+   * @var bool $is_general Is the channel the default #general channel?
+   */
   protected $is_general;
 
   /**
-   * @var array $members A list of the unique user IDs of members within the channel. */
+   * @var array $members A list of the unique user IDs of members within the channel.
+   */
   protected $members;
 
   /**
-   * @var array $topic An array containing the value, creator and last_set date of the channel topic. */
+   * @var array $topic An array containing the value, creator and last_set date of the channel topic.
+   */
   protected $topic;
 
   /**
-  * @var array $purpose An array containing the value, creator and last_set date of the channel purpose. */
+   * @var array $purpose An array containing the value, creator and last_set date of the channel purpose.
+   */
   protected $purpose;
 
   /**
-   * @var bool $is_member Will be true if the calling member is part of the channel. */
+   * @var bool $is_member Will be true if the calling member is part of the channel.
+   */
   protected $is_member;
 
   /**
-   * @var string $last_read Is the timestamp for the last message the calling user has read in the channel. */
+   * @var string $last_read Is the timestamp for the last message the calling user has read in the channel.
+   */
   protected $last_read;
 
   /**
-   * @var array $latest Is the latest Message in the channel. */
+   * @var array $latest Is the latest Message in the channel.
+   */
   protected $latest;
 
   /**
-   * @var int $unread_count Is a full count of visible messages that the calling user has yet to read. */
+   * @var int $unread_count Is a full count of visible messages that the calling user has yet to read.
+   */
   protected $unread_count;
 
   /**
-   * @var int $unread_count_display Is a count of messages that the calling user has yet to read that matter to them. */
+   * @var int $unread_count_display Is a count of messages that the calling user has yet to read that matter to them.
+   */
   protected $unread_count_display;
 
   public function setId (string $id)
