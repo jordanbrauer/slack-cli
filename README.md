@@ -1,5 +1,7 @@
 # slack-cli
 
+[![Build Status](https://travis-ci.org/jordanbrauer/slack-cli.svg?branch=master)](https://travis-ci.org/jordanbrauer/slack-cli)
+
 ## System Requirements
 
 * PHP >= 7.0
