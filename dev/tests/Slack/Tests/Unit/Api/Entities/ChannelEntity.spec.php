@@ -1,5 +1,7 @@
 <?php
 
+declare (strict_types = 1);
+
 namespace Slack\Tests\Unit\Api\Entities;
 
 use PHPUnit\Framework\TestCase;
