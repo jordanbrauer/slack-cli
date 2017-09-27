@@ -1,20 +1,19 @@
 <?php
 
-/**
- * @author Jordan Brauer <info@jordanbrauer.ca>
- * @version 0.0.1
- */
-
 declare (strict_types = 1);
 
 namespace Slack\Api\Entities;
 
-use Symfony\Component\Console\{
-  Output\OutputInterface,
-  Helper\Table,
-  Style\SymfonyStyle
-};
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * The abstract Entity class to be extended by any new Entities.
+ *
+ * @author Jordan Brauer <info@jordanbrauer.ca>
+ * @version 0.0.1
+ */
 abstract class Entity implements EntityInterface
 {
   /**
@@ -25,7 +24,7 @@ abstract class Entity implements EntityInterface
    * @param SymfonyStyle $io An instance of Symfony\Component\Console\Style\SymfonyStyle
    * @param $json The JSON string to be output to the console
    *
-   * @return string
+   * @return null
    */
   public static function getJsonOutput (SymfonyStyle $io, $json)
   {
@@ -41,7 +40,7 @@ abstract class Entity implements EntityInterface
    * @param array $entities An array entities to have rows costructed for the table output
    * @param array $parameter An array containing a list of command parameters, dictating certain output results
    *
-   * @return string
+   * @return null
    */
   public static function getTableOutput (OutputInterface $output, array $entities = array(), array $parameters = array())
   {
@@ -60,7 +59,7 @@ abstract class Entity implements EntityInterface
    *
    * @return array
    */
-  public static function getTableHeaders ()
+  public static function getTableHeaders (): array
   {
     $properties = get_class_vars(get_called_class());
 
@@ -83,7 +82,7 @@ abstract class Entity implements EntityInterface
    *
    * @return array
    */
-  public static function getTableRows (array $entities = array(), array $parameters = array())
+  public static function getTableRows (array $entities = array(), array $parameters = array()): array
   {
     return array_map(
       function ($entity) use ($parameters) {
