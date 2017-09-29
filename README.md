@@ -1,6 +1,11 @@
 # slack-cli
 
 [![Build Status](https://travis-ci.org/jordanbrauer/slack-cli.svg?branch=master)](https://travis-ci.org/jordanbrauer/slack-cli)
+[![composer.lock](https://poser.pugx.org/jordanbrauer/slack-cli/composerlock)](https://packagist.org/packages/jordanbrauer/slack-cli)
+[![Latest Stable Version](https://poser.pugx.org/jordanbrauer/slack-cli/v/stable)](https://packagist.org/packages/jordanbrauer/slack-cli)
+[![Latest Unstable Version](https://poser.pugx.org/jordanbrauer/slack-cli/v/unstable)](https://packagist.org/packages/jordanbrauer/slack-cli)
+[![Total Downloads](https://poser.pugx.org/jordanbrauer/slack-cli/downloads)](https://packagist.org/packages/jordanbrauer/slack-cli)
+[![License](https://poser.pugx.org/jordanbrauer/slack-cli/license)](https://packagist.org/packages/jordanbrauer/slack-cli)
 
 ## System Requirements
 
@@ -36,7 +41,7 @@ SLACK_VERIFICATION_TOKEN=""
 
 ## Basic Usage
 
-Once you've installed and configured slack-cli correctly, you can execute `bin/slack list` for a complete list of commands, each with their own descriptions, help blocks, and breakdown of arguments and options.
+Once you've installed and configured slack-cli, you can execute `bin/slack list` for a complete list of commands, each with their own descriptions, help blocks, and breakdown of arguments and options.
 
 Get all commands for Slack CLI
 
