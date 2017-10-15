@@ -6,20 +6,28 @@ use Slack\Console\Commands\ChannelsHistoryCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester as TestCommand;
 
+/**
+ * Class ChannelsHistoryTestCommand
+ * @package Slack\Console\Commands\Tests
+ */
 class ChannelsHistoryTestCommand
 {
-  public function execute (array $parameters = array())
-  {
-    $application = new Application("Slack CLI", "0.0.1");
+    /**
+     * @param array $parameters
+     * @return mixed
+     */
+    public function execute(array $parameters = array())
+    {
+        $application = new Application("Slack CLI", "0.0.1");
 
-    $application->add(new ChannelsHistoryCommand);
+        $application->add(new ChannelsHistoryCommand);
 
-    $command = $application->find("channel:history");
-    $parameters["command"] = $command->getName();
+        $command = $application->find("channel:history");
+        $parameters["command"] = $command->getName();
 
-    $testCommand = new TestCommand($command);
-    $testCommand->execute($parameters);
+        $testCommand = new TestCommand($command);
+        $testCommand->execute($parameters);
 
-    return $testCommand->getDisplay();
-  }
+        return $testCommand->getDisplay();
+    }
 }
