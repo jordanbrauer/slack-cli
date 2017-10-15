@@ -12,49 +12,57 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 
+/**
+ * Class ChatDeleteCommand
+ * @package Slack\Console\Commands
+ */
 class ChatDeleteCommand extends Command
 {
-  protected function configure ()
-  {
-    $this
-      ->setName("chat:delete")
-      ->setDescription("This method deletes a message from a channel")
-      ->setHelp("The response includes the channel and timestamp properties of the deleted message")
+    /**
+     *
+     */
+    protected function configure()
+    {
+        $this
+            ->setName("chat:delete")
+            ->setDescription("This method deletes a message from a channel")
+            ->setHelp("The response includes the channel and timestamp properties of the deleted message")
+            ->addArgument("channel", InputArgument::REQUIRED, "The channel that a message is being deleted from")
+            ->addArgument("timestamp", InputArgument::REQUIRED, "The unix timestamp of the message being deleted")
+            ->addOption("pretty", null, InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0);
+    }
 
-      ->addArgument("channel", InputArgument::REQUIRED, "The channel that a message is being deleted from")
-      ->addArgument("timestamp", InputArgument::REQUIRED, "The unix timestamp of the message being deleted")
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $io = new SymfonyStyle($input, $output);
 
-      ->addOption("pretty", null, InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0)
-      ;
-  }
+        $env = new Dotenv(__DIR__ . "/../../../../");
+        $env->load();
 
-  protected function execute(InputInterface $input, OutputInterface $output)
-  {
-    $io = new SymfonyStyle($input, $output);
+        $client = new Client([
+            "base_url" => "https://slack.com/api",
+            "token"    => getenv("SLACK_API_TOKEN"),
+        ]);
 
-    $env = new Dotenv(__DIR__."/../../../../");
-    $env->load();
+        $request = $client->ping("chat.delete", [
+            "channel" => $input->getArgument("channel"),
+            "ts"      => $input->getArgument("timestamp"),
+            "pretty"  => $input->getOption("pretty"),
+        ]);
 
-    $client = new Client([
-      "base_url" => "https://slack.com/api",
-      "token" => getenv("SLACK_API_TOKEN"),
-    ]);
+        $response = (object)[
+            "code" => $request->getStatusCode(),
+            "body" => $request->getBody(),
+        ];
 
-    $request = $client->ping("chat.delete", [
-      "channel" => $input->getArgument("channel"),
-      "ts" => $input->getArgument("timestamp"),
-      "pretty" => $input->getOption("pretty"),
-    ]);
-
-    $response = (object) [
-      "code" => $request->getStatusCode(),
-      "body" => $request->getBody(),
-    ];
-
-    if ($response->code >= 200 && $response->code <= 400):
-      $io->text(["<info>{$response->code}</info>", "<comment>{$response->body}</comment>"]);
-    else:
-      $io->error([$response->code, $response->body]);
-    endif;
-  }
+        if ($response->code >= 200 && $response->code <= 400):
+            $io->text(["<info>{$response->code}</info>", "<comment>{$response->body}</comment>"]);
+        else:
+            $io->error([$response->code, $response->body]);
+        endif;
+    }
 }

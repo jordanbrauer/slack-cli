@@ -15,130 +15,134 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
+/**
+ * Class ChannelsHistoryCommand
+ * @package Slack\Console\Commands
+ */
 class ChannelsHistoryCommand extends Command
 {
-  protected function configure ()
-  {
-    $this
-      ->setName("channels:history")
+    /**
+     *
+     */
+    protected function configure()
+    {
+        $this
+            ->setName("channels:history")
+            ->setAliases(["channel:history"])
+            ->setDescription("This method returns a portion of message events from the specified public channel.")
+            ->setHelp("To read the entire history for a channel, call the method with no latest or oldest arguments, and then continue paging using the instructions below.\nTo retrieve a single message, specify its ts value as latest, set inclusive to true, and dial your count down to 1.")
+            # Arguments
 
-      ->setAliases(["channel:history"])
+            ->addArgument("channel", InputArgument::REQUIRED, "The channel that a message is being deleted from")
+            # Options
 
-      ->setDescription("This method returns a portion of message events from the specified public channel.")
+            ->addOption("count", null, InputOption::VALUE_REQUIRED, "Amount of messages to fetch from the specified channel", 100)
+            ->addOption("output", "o", InputOption::VALUE_REQUIRED, "Output type for this command. Possible values include: table, json, timestamps", "table")
+            ->addOption("pretty", null, InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0);
+    }
 
-      ->setHelp("To read the entire history for a channel, call the method with no latest or oldest arguments, and then continue paging using the instructions below.\nTo retrieve a single message, specify its ts value as latest, set inclusive to true, and dial your count down to 1.")
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     * @return mixed
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        # Styled IO
+        $io = new SymfonyStyle($input, $output);
 
-      # Arguments
+        # Load environment
+        $env = new Dotenv(__DIR__ . "/../../../../");
+        $env->load();
 
-      ->addArgument("channel", InputArgument::REQUIRED, "The channel that a message is being deleted from")
+        # Create client
+        $client = new Client([
+            "base_url" => "https://slack.com/api",
+            "token"    => getenv("SLACK_API_TOKEN")
+        ]);
 
-      # Options
+        # Request method
+        $request = $client->ping("channels.history", [
+            "channel" => $input->getArgument("channel"),
+            "count"   => $input->getOption("count"),
+            "pretty"  => $input->getOption("pretty"),
+        ]);
 
-      ->addOption("count", null, InputOption::VALUE_REQUIRED, "Amount of messages to fetch from the specified channel", 100)
+        # Response object (mostly syntactical sugar)
+        $response = (object)[
+            "code" => $request->getStatusCode(),
+            "body" => $request->getBody(),
+            "ok"   => json_decode($request->getBody())->ok,
+        ];
 
-      ->addOption("output", "o", InputOption::VALUE_REQUIRED, "Output type for this command. Possible values include: table, json, timestamps", "table")
+        # Debug information
+        if ($io->isVerbose()):
+            $io->text("<options=bold,underscore>Debug:</>");
 
-      ->addOption("pretty", null, InputOption::VALUE_REQUIRED, "Print the JSON response body in preformatted text", 0)
-      ;
-  }
+            $io->text("URL Method: <comment>{$client->getMethod()}</comment>");
+            $io->text("Channel: <comment>{$input->getArgument('channel')}</comment>");
 
-  protected function execute(InputInterface $input, OutputInterface $output)
-  {
-    # Styled IO
-    $io = new SymfonyStyle($input, $output);
+            if ($io->isVeryVerbose()):
+                $io->text("Count: <comment>{$input->getOption('count')}</comment>");
+                $io->text("Pretty JSON: <comment>{$input->getOption('pretty')}</comment>");
+                $io->text("Output Style: <comment>{$input->getOption('output')}</comment>");
+            endif;
 
-    # Load environment
-    $env = new Dotenv(__DIR__."/../../../../");
-    $env->load();
+            if ($io->isDebug()):
+                $io->text("Response Code: <fg=cyan>{$response->code}</>");
+            endif;
 
-    # Create client
-    $client = new Client([
-      "base_url" => "https://slack.com/api",
-      "token" => getenv("SLACK_API_TOKEN")
-    ]);
+            $io->newLine();
+        endif;
 
-    # Request method
-    $request = $client->ping("channels.history", [
-      "channel" => $input->getArgument("channel"),
-      "count" => $input->getOption("count"),
-      "pretty" => $input->getOption("pretty"),
-    ]);
+        # Output based on response code and ok status
+        if ($response->code != 200):
+            return $io->error([$response->code, $response->body]);
+        elseif ($response->code == 200):
+            if (!$response->ok):
+                return $io->error([$response->code, $response->body]);
+            else:
+                switch ($input->getOption("output")):
+                    case "json":
+                        return Message::getJsonOutput($io, $response->body);
+                        break;
+                    case "table":
+                        # JSON Serializer and object normalizer (see Symfony serializer component)
+                        $serializer = new Serializer(
+                            array(new ObjectNormalizer),
+                            array(new JsonEncoder)
+                        );
 
-    # Response object (mostly syntactical sugar)
-    $response = (object) [
-      "code" => $request->getStatusCode(),
-      "body" => $request->getBody(),
-      "ok" => json_decode($request->getBody())->ok,
-    ];
+                        # Deserialize each channel object and push them into an array
+                        $messages = array();
+                        foreach (json_decode($response->body)->messages as $messageaSet):
+                            $message = $serializer->deserialize(json_encode($messageaSet), Message::class, "json");
 
-    # Debug information
-    if ($io->isVerbose()):
-      $io->text("<options=bold,underscore>Debug:</>");
+                            array_push($messages, $message);
+                        endforeach;
 
-      $io->text("URL Method: <comment>{$client->getMethod()}</comment>");
-      $io->text("Channel: <comment>{$input->getArgument('channel')}</comment>");
+                        // $messages = Collection::unserializedJson(json_decode($response->body)->messages, Message::class);
 
-      if ($io->isVeryVerbose()):
-        $io->text("Count: <comment>{$input->getOption('count')}</comment>");
-        $io->text("Pretty JSON: <comment>{$input->getOption('pretty')}</comment>");
-        $io->text("Output Style: <comment>{$input->getOption('output')}</comment>");
-      endif;
+                        # Render the table output
+                        return Message::getTableOutput($output, $messages);
+                        break;
+                    case "timestamps":
+                        $messages = json_decode($response->body)->messages;
 
-      if ($io->isDebug()):
-        $io->text("Response Code: <fg=cyan>{$response->code}</>");
-      endif;
+                        $messageTimestamps = array();
+                        foreach ($messages as $message):
+                            array_push($messageTimestamps, $message->ts);
+                        endforeach;
 
-      $io->newLine();
-    endif;
+                        $jsonTimestamps = $input->getOption("pretty") ?
+                            json_encode($messageTimestamps, JSON_PRETTY_PRINT) : json_encode($messageTimestamps);
 
-    # Output based on response code and ok status
-    if ($response->code != 200):
-      return $io->error([$response->code, $response->body]);
-    elseif ($response->code == 200):
-      if (!$response->ok):
-        return $io->error([$response->code, $response->body]);
-      else:
-        switch ($input->getOption("output")):
-          case "json":
-            return Message::getJsonOutput($io, $response->body);
-            break;
-          case "table":
-            # JSON Serializer and object normalizer (see Symfony serializer component)
-            $serializer = new Serializer(
-              array(new ObjectNormalizer),
-              array(new JsonEncoder)
-            );
-
-            # Deserialize each channel object and push them into an array
-            $messages = array();
-            foreach (json_decode($response->body)->messages as $messageaSet):
-              $message = $serializer->deserialize(json_encode($messageaSet), Message::class, "json");
-
-              array_push($messages, $message);
-            endforeach;
-
-            // $messages = Collection::unserializedJson(json_decode($response->body)->messages, Message::class);
-
-            # Render the table output
-            return Message::getTableOutput($output, $messages);
-            break;
-          case "timestamps":
-            $messages = json_decode($response->body)->messages;
-
-            $messageTimestamps = array();
-            foreach ($messages as $message):
-              array_push($messageTimestamps, $message->ts);
-            endforeach;
-
-            $jsonTimestamps = $input->getOption("pretty") ?
-              json_encode($messageTimestamps, JSON_PRETTY_PRINT) : json_encode($messageTimestamps);
-
-            return $io->text($jsonTimestamps);
-            break;
-          default:
-            return $io->text($response->body);
-        endswitch;
-      endif;
-    endif;
-  }
+                        return $io->text($jsonTimestamps);
+                        break;
+                    default:
+                        return $io->text($response->body);
+                endswitch;
+            endif;
+        endif;
+    }
 }
